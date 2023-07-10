@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>數字羽毛球比賽</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+	<style>
+		.container {
+			text-align: center;
+			margin-top: 100px;
+		}
+
+		.container a{
+			padding: 1rem;
+		}
+
+        .rotated-number {
+            writing-mode: vertical-lr;
+            text-orientation: sideways-right;
+            glyph-orientation-vertical: 0;
+        }
+
+        .digit{
+            font-size: 20rem;
+        }
+
+        .name{
+            font-size: 3.5rem;
+        }
+        .final-digit{
+            color: white;
+            font-size: 4rem;
+            text-align: end;
+        }
+	</style>
+	</head>
+	<body>
+        <div class="main-container">
+            <div class="double container d-flex flex-column col-6">
+                <h1 class="btn btn-primary mb-5">雙打</h1>
+            </div>
+            <div class="fight container">
+                <h2>第一局</h2>
+                <div class="d-flex flex-column mt-5">
+                    <div class="team-1 mb-5"><span class="team-name me-3">A:</span> Ada 、 Frank</div> 
+                    VS 
+                    <div class="team-2 mt-5"><span class="team-name me-3">B:</span> Bob 、 Cindy</div>
+                </div>
+                <button type="button" class="btn btn-primary mt-5 start-js">開始</button>
+            </div>
+            <div class="competition d-none">
+                <div class="team-blue bg-primary d-flex blue-add-score-js" data-key="blue">
+                     <div class="rotated-number m-auto d-flex flex-column-reverse">
+                        <div class="name name-add-js text-center"></div>
+                        <span class="digit text-end">0</span>
+                        <span class="final-digit">1</span>
+                      </div>
+                </div>
+                <div class="team-red bg-danger d-flex red-add-score-js">
+                    <div class="rotated-number m-auto d-flex flex-column-reverse" data-key="red">
+                        <div class="name name-add-js text-center"></div>
+                        <span class="digit">0</span>
+                        <span class="final-digit text-start">1</span>
+                      </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            const group = localStorage.getItem('group');
+            const group_obj = JSON.parse(group);
+            let i = 0;
+            group_obj.forEach((element, value) => {
+                for (const key in element) {
+                    // 找到第 i 個 name-add-js
+
+                    $('.name-add-js').eq(i).text(element[key].join('、'));
+                    i++;
+                }
+            });
+
+            $('.start-js').on('click', function(){
+                $('.fight').addClass('d-none');
+                $('.double').addClass('d-none');
+                $('.competition').removeClass('d-none');
+            });
+
+            initDigit();
+            const screenHeight = window.innerHeight;
+            let is_6_add = false;
+            let is_12_add = false;
+            let is_18_add = false;
+            let is_win = false;
+            $('.team-blue').css('height', screenHeight/2);
+            $('.team-red').css('height', screenHeight/2);
+
+            $('.blue-add-score-js, .red-add-score-js').on('click', function(){
+                if (is_win) return;
+                const key = $(this).attr('data-key');
+                let score = parseInt($(this).find('.digit').text()) + 1;
+                if (score >= 10){
+                    $(this).find('.digit').css('font-size','20rem');
+                }
+                $(this).find('.digit').text(score);
+
+                if (score == 6 && !is_6_add){
+                    let final_score = parseInt($(this).find('.final-digit').text()) + 1;
+                    $(this).find('.final-digit').text(final_score);
+                    is_6_add = true;
+                }
+
+                if (score == 12 && !is_12_add){
+                    let final_score = parseInt($(this).find('.final-digit').text()) + 1;
+                    $(this).find('.final-digit').text(final_score);
+                    is_12_add = true;
+                }
+
+                if (score == 18 && !is_18_add){
+                    let final_score = parseInt($(this).find('.final-digit').text()) + 1;
+                    $(this).find('.final-digit').text(final_score);
+                    is_18_add = true;
+                }
+
+                if (score >= 21){
+                    if (key == 'blue'){
+                        if (score-2 >= $('.team-red').find('.digit').text()){
+                            $('.team-blue').find('.final-digit').text(parseInt($('.team-blue').find('.final-digit').text()) + 1);
+                            is_win = true;
+                        }
+                    } else {
+                        if (score-2 >= $('.team-blue').find('.digit').text()){
+                            $('.team-red').find('.final-digit').text(parseInt($('.team-red').find('.final-digit').text()) + 1);
+                            is_win = true;
+                        }
+                    }
+                }
+            });
+
+            function initDigit(){
+                $('.final-digit').text('0');
+                $('.digit').text('0');
+            }
+        </script>
+	</body>
+</html>

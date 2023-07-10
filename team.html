@@ -33,8 +33,17 @@
                 <button type="button" id="add" class="btn btn-primary">新增</button>
             </div>
             <div class="container">
-                <ul id="list" class="d-flex flex-column alighn-item-center p-0"></ul>
+                <ul id="list" class="d-flex flex-column alighn-item-center p-0">
+                </ul>
             </div>  
+            <div class="container">
+                <table class="table">
+                    <tr>
+                        <th>組別</th>
+                        <th>隊伍</th>
+                    </tr>
+                </table>
+            </div>
         </div>
         <div class="d-flex justify-content-center mt-5">
             <button type="button" id="group" class="btn btn-primary me-3">分組</button>
@@ -49,9 +58,11 @@
             document.getElementById('add').addEventListener('click', function(){
                 // 取得輸入的名字
                 var name = document.getElementById('name').value;
+                // 清空輸入框
+                document.getElementById('name').value = '';
                 // 將名字新增到左邊清單
                 count++;
-                document.getElementById('list').innerHTML += `<li><div class="text-align-left"><span class="count">${count}</span>. ${name}  </div></li>`;
+                document.getElementById('list').innerHTML += `<li><div class="text-align-left"><span class="count">${count}</span>. <span class="name">${name}</span>  </div></li>`;
                 $( "#list" ).sortable({
                     stop: function (){
                         $(".count").each(function(index){
@@ -60,6 +71,41 @@
                         });
                     }
                 });
+            });
+
+            $('#group').on('click', function(){
+                if ($('#list li').length %2 != 0){
+                    const count = $('#list li').length + 1;
+                    const name = '替補';
+                    document.getElementById('list').innerHTML += `<li><div class="text-align-left"><span class="count">${count}</span>. ${name}  </div></li>`;
+                }
+
+                // 兩兩一組，以 A、B、C、D...依序分組
+                const list = $('#list').children();
+                $(".table").html(`<tbody><tr><th>組別</th><th>隊伍</th></tr></tbody>`);
+                for (let i = 0; i < list.length; i+=2){
+                    $(".table tbody").append(`<tr><td class="team-name">${String.fromCharCode(65 + i/2)}</td><td>${list[i].innerText} 、 ${list[i+1].innerText}</td></tr>`);
+                }
+                console.log(group);
+            });
+
+            $('#save').on('click', function(){
+                const list = $('#list').children();
+                const group = [];
+                for (let i = 0; i < list.length; i+=2){
+                    const str = String.fromCharCode(65 + i/2);
+                    console.log(list[i].innerText)
+                    // 建立一個 object，key 值為 str，value 值為 [list[i].innerText, list[i+1].innerText]
+                    const array = {};
+                    array[str] = [$(list[i]).find('.name').text(), $(list[i+1]).find('.name').text()];
+                    group.push(array);
+                }
+                // 儲存在 localStorage
+                localStorage.setItem('group', JSON.stringify(group));
+                alert('儲存成功');
+
+                // 跳轉到 index.html
+                window.location.href = '/index.html';
             });
         </script>
 	</body>
